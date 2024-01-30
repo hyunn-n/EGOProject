@@ -1,3 +1,3 @@
-module github.com/free5gc/chf/cdr/cdrFile
+module github.com/hyunn-n/freego
 
 go 1.21.5

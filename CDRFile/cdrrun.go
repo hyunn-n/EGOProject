@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"os"
 	"strconv"
-	"github.com/free5gc/chf/cdr/cdrFile"
+	"github.com/hyunn-n/freego"
+	//"github.com/free5gc/chf/cdr/cdrFile"
 	//"sgx-workspace/ego/CDRFile"
 
         //"cdrfile/cdrFile"
@@ -14,7 +15,6 @@ import (
 )
 
 // CDRFile, CdrFileHeader, CdrHeader, CdrHdrTimeStamp 등의 타입 정의
-// ...
 
 func main() {
 	// 코드 실행 전 시간 기록
