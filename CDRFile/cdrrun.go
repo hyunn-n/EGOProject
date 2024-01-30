@@ -17,6 +17,9 @@ import (
 // ...
 
 func main() {
+	// 코드 실행 전 시간 기록
+	startTime := time.Now()
+
 	// 테스트 케이스 정의
 	cdrFile1 := CDRFile{
 		Hdr: CdrFileHeader{
@@ -128,5 +131,14 @@ func main() {
 	if e2 != nil {
 		fmt.Println(e2)
 	}
+
+	//코드 실행 후 시간 기록
+	endTime := time.Now()
+
+        // 실행 시간 계산
+	executionTime := endTime.Sub(startTime)
+       
+	// 실행 시간 출력
+	fmt.Println("Execution Time: ", executionTime)
 }
 
