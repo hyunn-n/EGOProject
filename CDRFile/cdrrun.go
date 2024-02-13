@@ -3,9 +3,13 @@ package main
 import (
 	"fmt"
 	"os"
-	"strconv"
-	"github.com/hyunn-n/freego"
-	//"github.com/free5gc/chf/cdr/cdrFile"
+	//"strconv" --
+	"time"
+	//"ioutil"
+	"encoding/json"
+	//"cdrfile/CDRFile"
+	//"github.com/hyunn-n/freego"
+	//"github.com/free5gc/chf/cdr/cdrFile" --
 	//"sgx-workspace/ego/CDRFile"
 
         //"cdrfile/cdrFile"
@@ -16,7 +20,149 @@ import (
 
 // CDRFile, CdrFileHeader, CdrHeader, CdrHdrTimeStamp 등의 타입 정의
 
+type CDRFile struct {
+	Hdr     CdrFileHeader
+	CdrList []CDR
+}
+
+type CDR struct {
+	Hdr     CdrHeader
+	CdrByte []byte
+}
+
+type CdrFileHeader struct {
+	FileLength                            uint32
+	HeaderLength                          uint32
+	HighReleaseIdentifier                 uint8 // octet 9 bit 6..8
+	HighVersionIdentifier                 uint8 // octet 9 bit 1..5
+	LowReleaseIdentifier                  uint8 // octet 10 bit 6..8
+	LowVersionIdentifier                  uint8 // octet 10 bit 1..5
+	FileOpeningTimestamp                  CdrHdrTimeStamp
+	TimestampWhenLastCdrWasAppendedToFIle CdrHdrTimeStamp
+	NumberOfCdrsInFile                    uint32
+	FileSequenceNumber                    uint32
+	FileClosureTriggerReason              FileClosureTriggerReasonType
+	IpAddressOfNodeThatGeneratedFile      [20]byte // ip address in ipv6 format
+	LostCdrIndicator                      uint8
+	LengthOfCdrRouteingFilter             uint16
+	CDRRouteingFilter                     []byte // vendor specific
+	LengthOfPrivateExtension              uint16
+	PrivateExtension                      []byte // vendor specific
+	HighReleaseIdentifierExtension        uint8
+	LowReleaseIdentifierExtension         uint8
+}
+
+
+type CdrHeader struct {
+	CdrLength                  uint16
+	ReleaseIdentifier          ReleaseIdentifierType // octet 3 bit 6..8
+	VersionIdentifier          uint8                 // otcet 3 bit 1..5
+	DataRecordFormat           DataRecordFormatType  // octet 4 bit 6..8
+	TsNumber                   TsNumberIdentifier    // octet 4 bit 1..5
+	ReleaseIdentifierExtension uint8
+}
+
+type CdrHdrTimeStamp struct {
+	MonthLocal  							uint8
+	DateLocal   							uint8
+	HourLocal   							uint8
+	MinuteLocal 							uint8
+	SignOfTheLocalTimeDifferentialFromUtc   uint8  // bit set to "1" expresses "+" or bit set to "0" expresses "-" time deviation)
+	HourDeviation 							uint8
+	MinuteDeviation 						uint8
+}
+
+type FileClosureTriggerReasonType uint8
+
+const (
+	NormalClosure                     FileClosureTriggerReasonType = 0
+	FileSizeLimitReached              FileClosureTriggerReasonType = 1
+	FileOpentimeLimitedReached        FileClosureTriggerReasonType = 2
+	MaximumNumberOfCdrsInFileReached  FileClosureTriggerReasonType = 3
+	FileClosedByManualIntervention    FileClosureTriggerReasonType = 4
+	CdrReleaseVersionOrEncodingChange FileClosureTriggerReasonType = 5
+	AbnormalFileClosure               FileClosureTriggerReasonType = 128
+	FileSystemError                   FileClosureTriggerReasonType = 129
+	FileSystemStorageExhausted        FileClosureTriggerReasonType = 130
+	FileIntegrityError                FileClosureTriggerReasonType = 131
+)
+
+type ReleaseIdentifierType uint8
+
+const (
+	Rel99 ReleaseIdentifierType = iota
+	Rel4
+	Rel5
+	Rel6
+	Rel7
+	Rel8
+	Rel9
+	BeyondRel9
+)
+
+type DataRecordFormatType uint8
+
+const (
+	BasicEncodingRules DataRecordFormatType = iota + 1
+	UnalignedPackedEncodingRules
+	AlignedPackedEncodingRules1
+	XMLEncodingRules
+)
+
+type TsNumberIdentifier uint8
+
+const (
+	TS32005 TsNumberIdentifier = 0
+	TS32015 TsNumberIdentifier = 1
+	TS32205 TsNumberIdentifier = 2
+	TS32215 TsNumberIdentifier = 3
+	TS32225 TsNumberIdentifier = 4
+	TS32235 TsNumberIdentifier = 5
+	TS32250 TsNumberIdentifier = 6
+	TS32251 TsNumberIdentifier = 7
+	TS32260 TsNumberIdentifier = 9
+	TS32270 TsNumberIdentifier = 10
+	TS32271 TsNumberIdentifier = 11
+	TS32272 TsNumberIdentifier = 12
+	TS32273 TsNumberIdentifier = 13
+	TS32275 TsNumberIdentifier = 14
+	TS32274 TsNumberIdentifier = 15
+	TS32277 TsNumberIdentifier = 16
+	TS32296 TsNumberIdentifier = 17
+	TS32278 TsNumberIdentifier = 18
+	TS32253 TsNumberIdentifier = 19
+	TS32255 TsNumberIdentifier = 20
+	TS32254 TsNumberIdentifier = 21
+	TS32256 TsNumberIdentifier = 22
+	TS28201 TsNumberIdentifier = 23
+	TS28202 TsNumberIdentifier = 24
+)
+
+
+
+// CDRFile에 대한 Encoding 함수 추가
+func (c *CDRFile) Encoding(fileName string) error {
+	fileData, err := json.Marshal(c)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(fileName, fileData, 0644)
+}
+
+// CDRFile에 대한 Decoding 함수 추가
+func (c *CDRFile) Decoding(fileName string) error {
+	fileData, err := os.ReadFile(fileName)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(fileData, c)
+}
+
+
 func main() {
+
+	//var myCDR cdrFile.CDR
+	//var myFile cdrFile.CdrFileHeader
 	// 코드 실행 전 시간 기록
 	startTime := time.Now()
 
