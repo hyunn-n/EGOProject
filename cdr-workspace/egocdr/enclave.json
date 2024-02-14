@@ -1,0 +1,14 @@
+{
+    "exe": "run1",
+    "key": "private.pem",
+    "debug": true,
+    "heapSize": 512,
+    "productID": 1,
+    "securityVersion": 1,
+    "files": [
+        {
+            "source": "/etc/ssl/certs/ca-certificates.crt",
+            "target": "/etc/ssl/certs/ca-certificates.crt"
+        }
+    ]
+}

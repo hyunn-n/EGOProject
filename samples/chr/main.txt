@@ -1,0 +1,58 @@
+package cdrFile
+
+import (
+	"fmt"
+	"time"
+)
+
+func main() {
+	loc, _ := time.LoadLocation("Asia/Kolkata")
+	timeNow := time.Now().In(loc)
+
+	cdrf := CdrFileHeader{
+		FileLength:                            5,
+		HeaderLength:                          6,
+		HighReleaseIdentifier:                 2,
+		HighVersionIdentifier:                 3,
+		LowReleaseIdentifier:                  4,
+		LowVersionIdentifier:                  5,
+		FileOpeningTimestamp:                  CdrHdrTimeStamp{MonthLocal: 1, DateLocal: 1, HourLocal: 12, MinuteLocal: 0, SignOfTheLocalTimeDifferentialFromUtc: 0, HourDeviation: 0, MinuteDeviation: 0},
+		TimestampWhenLastCdrWasAppendedToFIle: CdrHdrTimeStamp{MonthLocal: 1, DateLocal: 1, HourLocal: 12, MinuteLocal: 0, SignOfTheLocalTimeDifferentialFromUtc: 0, HourDeviation: 0, MinuteDeviation: 0},
+		NumberOfCdrsInFile:                    1,
+		FileSequenceNumber:                    11,
+		FileClosureTriggerReason:              4,
+		//IpAddressOfNodeThatGeneratedFile      [20]byte(),
+		LostCdrIndicator:          4,
+		LengthOfCdrRouteingFilter: 4,
+		CDRRouteingFilter:                     []byte("abcd"),
+		LengthOfPrivateExtension: 5,
+		PrivateExtension:                      []byte("fghjk"), // vendor specific
+		HighReleaseIdentifierExtension: 2,
+		LowReleaseIdentifierExtension:  3,
+	}
+
+	cdrHeader := CdrHeader{
+		CdrLength:                  3,
+		ReleaseIdentifier:          Rel6,
+		VersionIdentifier:          3,
+		DataRecordFormat:           UnalignedPackedEncodingRules,
+		TsNumber:                   TS32253,
+		ReleaseIdentifierExtension: 4,
+	}
+
+	cdrFile := CDRFile{
+		Hdr: cdrf,
+		CdrList: []CDR{{Hdr: cdrHeader, CdrByte: []byte("abc")}},
+	}
+
+	// Encoding
+	cdrFile.Encoding("encoding.txt")
+
+	// Decoding
+	cdrFile = CDRFile{}
+	cdrFile.Decoding("encoding.txt")
+
+	// Print decoded data
+	fmt.Printf("%#v\n", cdrFile)
+}
+
